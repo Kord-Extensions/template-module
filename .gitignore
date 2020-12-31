@@ -121,4 +121,9 @@ build
 
 # Ignore downloaded Detekt config
 detekt.yml
-!gradle/**/*.jar
+
+# Ignore release.md
+release.md
+
+# Add gradle wrapper
+!gradle/wrapper/*.jar

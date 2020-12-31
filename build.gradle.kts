@@ -88,6 +88,10 @@ val downloadDetektConfig = task("downloadDetektConfig", Download::class) {
     onlyIfModified(true)
 }
 
+val printVersion = task("printVersion") {
+    logger.quiet(version.toString())
+}
+
 downloadDetektConfig.download()
 
 detekt {
