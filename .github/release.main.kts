@@ -44,10 +44,21 @@ val authorAvatar = author["avatar_url"] as String
 val authorName = author["login"] as String
 val authorUrl = author["html_url"] as String
 
-val releaseBody = (data["body"] as String).replace("\n* ", "\n**»** ").trim()
+var releaseBody = (data["body"] as String).replace("\n* ", "\n**»** ").trim()
 val releaseName = data["name"] as String
 val releaseTime = data["published_at"] as String
 val releaseUrl = data["html_url"] as String
+
+if (releaseBody.startsWith("#")) {
+    val lines = releaseBody.split("\n").toMutableList()
+
+    lines[0] = lines[0].replaceFirst("#", "**") + "**"
+    releaseBody = lines.joinToString("\n")
+}
+
+if (releaseBody.contains("---")) {
+    releaseBody = releaseBody.split("---", limit = 2).first()
+}
 
 val webhook = mapOf(
     "embeds" to listOf(
@@ -68,8 +79,6 @@ val webhook = mapOf(
 )
 
 val jsonBody = gson.create().toJson(webhook)
-
-println("\n\n$jsonBody\n")
 
 val webhookResponse = httpPost {
     url(webhookUrl)

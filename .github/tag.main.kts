@@ -7,7 +7,7 @@ import java.io.File
 //val webhookUrl = System.getenv("WEBHOOK_URL")
 val repo = System.getenv("GITHUB_REPOSITORY")
 
-var githubTag: String = System.getenv("GITHUB_REF")
+var githubTag: String = System.getenv("GITHUB_REF") ?: "v1.0.0-SNAPSHOT"
 
 if (githubTag.contains("/")) {
     githubTag = githubTag.split("/").last()
@@ -36,19 +36,40 @@ val commits = if (tags.size < 2) {
     val commit = split.first()
     val message = split.last()
 
-    "* [$commit](https://github.com/$repo/commit/$commit) $message"
+    Pair(commit, message)
 }
 
 println("Commits: ${commits.size}")
 
+val commitList = if (commits.size > 10) {
+    commits.take(10).joinToString("\n") {
+        val (commit, message) = it
+
+        "* [${commit.take(6)}](https://github.com/$repo/commit/$commit): $message"
+    } + "\n\n...and ${commits.size - 10} more."
+} else {
+    commits.joinToString("\n") {
+        val (commit, message) = it
+
+        "* [${commit.take(6)}](https://github.com/$repo/commit/$commit): $message"
+    }
+}
+
+val descFile = File("changes/$githubTag.md")
+
+val description = if (descFile.exists()) {
+    descFile.readText(Charsets.UTF_8).trim()
+} else {
+    "Description file `changes/$githubTag.md` not found - this release will need to be updated later!"
+}
+
 val file = File("release.md")
 
 file.writeText(
-    "# Release $githubTag\n\n" +
-
-            commits.joinToString("\n") + "\n\n" +
-
-            "**This release description was generated automatically, and may be updated later.**"
+    "$description\n\n" +
+            "---\n\n" +
+            "# Commits (${commits.size}) \n\n" +
+            commitList
 )
 
 print("File written: release.md")
