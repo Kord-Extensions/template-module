@@ -24,7 +24,7 @@ val tags = shellRun("git", listOf("tag")).trim().split("\n")
 val commits = if (tags.size < 2) {
     println("No previous tags, using all branch commits.")
 
-    shellRun("git", listOf("log", "--format=oneline", "--no-color", "root"))
+    shellRun("git", listOf("log", "--format=oneline", "--no-color"))
 } else {
     val previousTag = tags.takeLast(2).first()
 
